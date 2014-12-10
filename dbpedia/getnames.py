@@ -32,7 +32,7 @@ def dump(ont_class, limit=1000, offset=0):
     results = query_dbpedia("""
         SELECT ?n, ?s WHERE {
             ?p a <http://dbpedia.org/ontology/""" + ont_class + """> .
-            ?p prov:wasDerivedFrom ?s .
+            ?p dbpedia-owl:wikiPageID ?s .
             ?p foaf:name ?n .
         } LIMIT """ + str(limit) + ' OFFSET ' + str(offset)
     )
