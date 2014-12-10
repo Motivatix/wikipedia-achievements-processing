@@ -31,7 +31,8 @@ def dump(ont_class, limit=1000, offset=0):
     """Dumps 'limit' names of 'ont_class' objects from 'offset'."""
     results = query_dbpedia("""
         SELECT ?n, ?s WHERE {
-            ?p a <http://dbpedia.org/ontology/""" + ont_class+ """> .
+            ?p a <http://dbpedia.org/ontology/""" + ont_class + """> .
+            ?p prov:wasDerivedFrom ?s .
             ?p foaf:name ?n .
         } LIMIT """ + str(limit) + ' OFFSET ' + str(offset)
     )
@@ -39,12 +40,13 @@ def dump(ont_class, limit=1000, offset=0):
         res = set()
         for result in results:
             tmp = result['n']['value'].split(',')
+            out = tmp[0].strip()
             if len(tmp) > 1:
-                res.add(tmp[1][1:] + ' ' + tmp[0])
-            else:
-                res.add(tmp[0])
+                out = tmp[1][1:].strip() + ' ' + tmp[0].strip()
+            out += '\t' + result['s']['value']
+            res.add(out.replace('"', ''))
         for result in sorted(res):
-            print(result)
+            print(result.encode('utf-8'))
     else:
         sys.stderr.write('Error in offset: ' + str(offset) + '\n')
 
