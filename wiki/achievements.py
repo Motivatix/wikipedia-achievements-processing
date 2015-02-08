@@ -26,8 +26,14 @@ def process_page(id):
     tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
     out = set()
     for line in tokenizer.tokenize(page.content, realign_boundaries=True):
-        if in_date_regex.match(line):
-            out.add(line)
+        if '\n' in line:
+            line = line.split('\n')
+        else:
+            line = [line]
+
+        for l in line:
+            if in_date_regex.match(l):
+                out.add(l)
     return out
 
 if __name__ == '__main__':
