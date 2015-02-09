@@ -39,9 +39,13 @@ def process_page(id):
 if __name__ == '__main__':
     for file in sys.argv[1:]:
         names = process_file(file)
-        sample = random.sample(names, 10)
+        if len(names) > 10:
+            sample = random.sample(names, 10)
+        else:
+            sample = names
+
         for name in sample:
             pageid = names[name]
             print "Results of processing {} ({})".format(name, pageid)
             for achievement in process_page(pageid):
-                print "\t", achievement
+                print "\t", achievement.encode('utf-8')
