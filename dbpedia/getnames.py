@@ -30,9 +30,10 @@ def get_count(ont_class):
 def dump(ont_class, limit=1000, offset=0):
     """Dumps 'limit' names of 'ont_class' objects from 'offset'."""
     results = query_dbpedia("""
-        SELECT ?n, ?s WHERE {
+        SELECT ?n, ?s, ?b WHERE {
             ?p a <http://dbpedia.org/ontology/""" + ont_class + """> .
             ?p dbpedia-owl:wikiPageID ?s .
+            ?p dbpedia-owl:birthDate ?b .
             ?p foaf:name ?n .
         } LIMIT """ + str(limit) + ' OFFSET ' + str(offset)
     )
@@ -44,6 +45,7 @@ def dump(ont_class, limit=1000, offset=0):
             if len(tmp) > 1:
                 out = tmp[1][1:].strip() + ' ' + tmp[0].strip()
             out += '\t' + result['s']['value']
+            out += '\t' + result['b']['value']
             res.add(out.replace('"', ''))
         for result in sorted(res):
             print(result.encode('utf-8'))
