@@ -48,4 +48,4 @@ if __name__ == '__main__':
             pageid = names[name]
             print "Results of processing {} ({})".format(name, pageid)
             for achievement in process_page(pageid):
-                print "\t", achievement.encode('utf-8')
+                print ("\t", achievement.encode('utf-8'))
