@@ -1,8 +1,11 @@
+from __future__ import print_function
+
 import wikipedia
 import sys
 import random
 import re
 import nltk.data
+from datetime import datetime
 
 
 def process_file(f):
@@ -10,20 +13,25 @@ def process_file(f):
     with open(f) as file:
         for line in file:
             l = line.strip().split('\t')
-            if len(l) != 2:
+            if len(l) != 3:
                 continue
-            (k, v) = l
-            names[k] = v
+            (k, v, y) = l
+            names[k] = (v, y)
     return names
 
 
-REGEX_IN_DATE = r".*in\s*(?:[^ ,]*?)?\s*\d\d\d\d.*"
+REGEX_IN_DATE = r".*in\s*(?:[^ ,]*?)?\s*(\d\d\d\d).*"
 
 
-def process_page(id):
+def process_page(id, birth_year):
     page = wikipedia.page(pageid=id)
     in_date_regex = re.compile(REGEX_IN_DATE, re.IGNORECASE)
     tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
+
+    text_to_date = lambda x, y: datetime.strptime(x, y).date()
+
+    birth_date = text_to_date(birth_year, '%Y-%m-%d+%H:%M')
+
     out = set()
     for line in tokenizer.tokenize(page.content, realign_boundaries=True):
         if '\n' in line:
@@ -32,9 +40,12 @@ def process_page(id):
             line = [line]
 
         for l in line:
-            if in_date_regex.match(l):
-                out.add(l)
-    return out
+            match = in_date_regex.match(l)
+            if match is not None:
+                date = text_to_date(match.group(1), '%Y')
+                age = (date - birth_date).days // 365
+                out.add((age, l))
+    return sorted(out, key=lambda achievement: achievement[0])
 
 if __name__ == '__main__':
     for file in sys.argv[1:]:
@@ -45,7 +56,8 @@ if __name__ == '__main__':
             sample = names
 
         for name in sample:
-            pageid = names[name]
-            print "Results of processing {} ({})".format(name, pageid)
-            for achievement in process_page(pageid):
-                print ("\t", achievement.encode('utf-8'))
+            data = names[name]
+            print ("Results of processing {} ({}, {})".format(name, *data))
+            for achievement in process_page(*data):
+                print ("\t", achievement[0],
+                       "\t", achievement[1].encode('utf-8'))
