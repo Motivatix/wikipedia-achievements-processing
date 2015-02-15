@@ -6,6 +6,7 @@ import random
 import re
 import nltk.data
 from datetime import datetime
+from math import ceil
 
 
 def process_file(f):
@@ -43,8 +44,9 @@ def process_page(id, birth_year):
             match = in_date_regex.match(l)
             if match is not None:
                 date = text_to_date(match.group(1), '%Y')
-                age = (date - birth_date).days // 365
-                out.add((age, l))
+                age = ceil((date - birth_date).days / 365.0)
+                if age >= 0:
+                    out.add((int(abs(age)), l))
     return sorted(out, key=lambda achievement: achievement[0])
 
 if __name__ == '__main__':
