@@ -31,6 +31,8 @@ def process_page(id, birth_year):
 
     text_to_date = lambda x, y: datetime.strptime(x, y).date()
 
+    in_past = lambda x: x < date.today()
+
     birth_date = text_to_date(birth_year, '%Y-%m-%d+%H:%M')
 
     out = set()
@@ -45,7 +47,7 @@ def process_page(id, birth_year):
             if match is not None:
                 date = text_to_date(match.group(1), '%Y')
                 age = ceil((date - birth_date).days / 365.0)
-                if age >= 0:
+                if age >= 0 and in_past(date):
                     out.add((int(abs(age)), l))
     return sorted(out, key=lambda achievement: achievement[0])
 
